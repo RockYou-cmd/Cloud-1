@@ -1,0 +1,15 @@
+Vagrant.configure("2") do |config|
+
+  config.vm.box = "ubuntu/bionic64"
+  config.vm.define "bladerunner1" do |bladerunner1|
+    bladerunner1.vm.network "public_network"
+    bladerunner1.vm.hostname = "bladerunner1"
+  end
+    
+  config.vm.define "bladerunner2" do |bladerunner2|
+    bladerunner2.vm.network "public_network"
+    bladerunner2.vm.hostname = "bladerunner2"
+  end
+
+
+end
