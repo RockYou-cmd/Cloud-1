@@ -1,0 +1,102 @@
+---
+- name : running inception on two vm (cloud)
+  hosts: myhosts
+  become: yes
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+  tasks:
+  - name: copy inception to the remote machine
+    copy:
+      src: ../INCEPTION
+      dest: /home
+  - name: Install required system packages
+    apt:
+      pkg:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - software-properties-common
+        - python3-pip
+        - virtualenv
+        - python3-setuptools
+      state: present
+      update_cache: yes
+
+  - name: Add Docker GPG apt Key
+    apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+  - name: Add Docker Repository
+    apt_repository:
+      repo: "deb https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+      state: present
+
+  - name: Update apt and install docker-ce
+    apt:
+      name: docker-ce
+      state: latest
+      update_cache: true
+
+  - name: Install Docker Compose
+    shell: curl -fsSL https://github.com/docker/compose/releases/latest/download/docker-compose-Linux-x86_64 -o /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose
+
+  # - name: Install Docker Compose binary
+  #   get_url:
+  #     url: "https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64"
+  #     dest: "/usr/local/bin/docker-compose"
+  #     mode: '0755'
+
+  - name: Ensure Machine user is in docker group
+    user:
+      name: vagrant
+      groups: docker
+      append: yes
+
+  # - name: Apply group changes immediately
+  #   shell: newgrp docker
+    
+  # - name: Install Docker Compose
+  #   pip:
+  #     name: docker-compose
+
+  - name: Install Docker Module for Python (docker sdk) 
+    pip:
+      name:
+        - docker
+        - docker-compose
+      executable: pip3
+
+  - name: Start Docker Service
+    service:
+      name: docker
+      state: started
+      enabled: yes
+
+  # - name: Add or update IP variable in .env
+  #   lineinfile:
+  #     path: /home/INCEPTION/srcs/.env
+  #     line: "IP_ADDRESS={{ inventory_hostname }}"
+  #     create: yes
+
+  - name : Run docker-compose
+    environment:
+      IP_ADDRESS: "{{ inventory_hostname }}"
+    docker_compose:
+      project_src: /home/INCEPTION/srcs
+
+# - name: install docker
+#   tasks:
+#   - name: install docker
+#     apt:
+#       name: docker.io
+#       state: present
+  # - name: start dpcker service
+  #   service:
+  #     name: docker
+  #     state: started
+  #     enabled: yes
+#   - name: install docker-compose
+#     apt:
+#       name: docker-compose
+#       state: present
