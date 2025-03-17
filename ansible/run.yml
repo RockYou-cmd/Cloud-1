@@ -36,7 +36,7 @@
     - name: Copy inception project
       copy:
         src: ../inception
-        dest: /home/vagrant/
+        dest: /home/cloud/
 
     - name: Run docker-compose up
       environment:
