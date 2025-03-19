@@ -1,0 +1,19 @@
+FROM debian:bullseye
+
+
+RUN apt update && apt install -y wget php-fpm php-mysql php-curl php-gd php-mbstring php-xml php-xmlrpc php-zip unzip
+RUN mkdir /var/www/html/wordpress -p
+RUN mkdir /run/php -p
+
+RUN wget https://files.phpmyadmin.net/phpMyAdmin/5.2.1/phpMyAdmin-5.2.1-all-languages.zip -O /tmp/phpmyadmin.zip \
+&& unzip /tmp/phpmyadmin.zip -d /var/www/html \
+&& mv /var/www/html/phpMyAdmin-5.2.1-all-languages /var/www/html/phpmyadmin \
+&& rm /tmp/phpmyadmin.zip
+
+RUN chown -R www-data:www-data /var/www/html/phpmyadmin
+
+COPY conf/config.inc.php /var/www/html/phpmyadmin
+
+RUN sed -i 's#/run/php/php7.4-fpm.sock#9000#g' /etc/php/7.4/fpm/pool.d/www.conf
+
+CMD ["php-fpm7.4", "-F"]

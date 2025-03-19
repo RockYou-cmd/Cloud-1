@@ -6,11 +6,33 @@
   vars:
     ansible_python_interpreter: /usr/bin/python3
   tasks:
-    - name: update system and install docker 
-      package:
-        name:
-          - docker.io
+    - name: Install required system packages
+      apt:
+        pkg:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
           - python3-pip
+          - virtualenv
+          - python3-setuptools
+        state: present
+        update_cache: yes
+
+    - name: Add Docker GPG apt Key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+  
+    - name: Add Docker Repository
+      apt_repository:
+        repo: "deb https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+        state: present
+  
+    - name: Update apt and install docker-ce
+      apt:
+        name: docker-ce
+        state: latest
         update_cache: true
 
 
@@ -35,12 +57,13 @@
 
     - name: Copy inception project
       copy:
-        src: ../inception
+        src: ../inception_project
         dest: /home/cloud/
 
     - name: Run docker-compose up
       environment:
         ip: "{{ inventory_hostname }}"
-      docker_compose:
-        project_src: /home/vagrant/inception/srcs
+      community.docker.docker_compose_v2:
+        project_src: /home/cloud/inception/srcs
+        build: always
 

@@ -1,7 +1,5 @@
 [all]
-139.59.183.92 ansible_user=root ansible_password=Spinoza4@2Rockyou
-
-# 10.13.100.251 ansible_user=vagrant ansible_password=vagrant
+142.93.32.246 ansible_user=root ansible_password=Spinoza4@2Rockyou
 
 
-# 139.59.183.92 ansible_user=root
+
